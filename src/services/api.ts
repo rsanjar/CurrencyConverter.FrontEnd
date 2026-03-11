@@ -11,7 +11,7 @@ import type {
   GetHistoricalRatesRangeRequest,
 } from '../types/api';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://localhost:7001';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://converter-dev.rahmatov.net';
 
 function getToken(): string | null {
   return localStorage.getItem('auth_token');

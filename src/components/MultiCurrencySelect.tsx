@@ -57,7 +57,7 @@ export default function MultiCurrencySelect({
       </div>
       <div className="multi-select-grid" id={id}>
         {available.map((c) => (
-          <label key={c.code} className={`currency-chip${values.includes(c.code) ? ' selected' : ''}`}>
+          <label key={c.code} className={`currency-chip${values.includes(c.code) ? ' selected' : ''}`} title={c.name}>
             <input
               type="checkbox"
               checked={values.includes(c.code)}
