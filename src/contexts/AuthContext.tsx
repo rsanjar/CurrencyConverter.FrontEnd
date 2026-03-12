@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { authApi } from '../services/api';
+import { authApi, AUTH_EXPIRED_EVENT } from '../services/api';
 import { AuthContext } from './useAuth';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -35,6 +35,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('auth_token');
     setToken(null);
     setError(null);
+  }, []);
+
+  useEffect(() => {
+    const handleAuthExpired = () => {
+      setToken(null);
+      setError('Session expired. Please sign in again.');
+    };
+
+    window.addEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+    return () => {
+      window.removeEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+    };
   }, []);
 
   return (

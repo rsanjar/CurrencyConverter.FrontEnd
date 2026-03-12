@@ -12,6 +12,7 @@ import type {
 } from '../types/api';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://converter-dev.rahmatov.net';
+export const AUTH_EXPIRED_EVENT = 'auth-expired';
 
 function getToken(): string | null {
   return localStorage.getItem('auth_token');
@@ -36,6 +37,11 @@ async function request<T>(
   });
 
   if (!response.ok) {
+    if (response.status === 401 && token) {
+      localStorage.removeItem('auth_token');
+      window.dispatchEvent(new Event(AUTH_EXPIRED_EVENT));
+    }
+
     let errorMessage = `Request failed: ${response.status} ${response.statusText}`;
     try {
       const errorBody = await response.json();
