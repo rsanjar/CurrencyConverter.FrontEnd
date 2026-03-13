@@ -12,6 +12,7 @@ import type {
 } from '../types/api';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://converter-dev.rahmatov.net';
+const API_PREFIX = '/api/v1';
 export const AUTH_EXPIRED_EVENT = 'auth-expired';
 
 function getToken(): string | null {
@@ -73,7 +74,7 @@ async function request<T>(
 // Auth API
 export const authApi = {
   login: (data: LoginRequest): Promise<TokenResponse> =>
-    request<TokenResponse>('/api/auth/token', {
+    request<TokenResponse>(`${API_PREFIX}/auth/token`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
@@ -82,31 +83,31 @@ export const authApi = {
 // Currencies API
 export const currenciesApi = {
   getAll: (): Promise<CurrencyResponse[]> =>
-    request<CurrencyResponse[]>('/api/currencies'),
+    request<CurrencyResponse[]>(`${API_PREFIX}/currencies`),
 };
 
 // Exchange Rates API
 export const exchangeRatesApi = {
   getLatest: (data: GetLatestRatesRequest): Promise<ExchangeRateResponse> =>
-    request<ExchangeRateResponse>('/api/exchangerates/conversion', {
+    request<ExchangeRateResponse>(`${API_PREFIX}/exchangerates/conversion`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
   getByDate: (data: GetHistoricalRatesRequest): Promise<ExchangeRateResponse> =>
-    request<ExchangeRateResponse>('/api/exchangerates/by-date', {
+    request<ExchangeRateResponse>(`${API_PREFIX}/exchangerates/by-date`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
   convertAmount: (data: ConvertCurrencyRequest): Promise<ConversionResponse> =>
-    request<ConversionResponse>('/api/exchangerates/amount-conversion', {
+    request<ConversionResponse>(`${API_PREFIX}/exchangerates/amount-conversion`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
   getHistory: (data: GetHistoricalRatesRangeRequest): Promise<HistoricalRatesPageResponse> =>
-    request<HistoricalRatesPageResponse>('/api/exchangerates/history', {
+    request<HistoricalRatesPageResponse>(`${API_PREFIX}/exchangerates/history`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
