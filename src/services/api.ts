@@ -82,8 +82,8 @@ export const authApi = {
 
 // Currencies API
 export const currenciesApi = {
-  getAll: (): Promise<CurrencyResponse[]> =>
-    request<CurrencyResponse[]>(`${API_PREFIX}/currencies`),
+  getAll: (options?: RequestInit): Promise<CurrencyResponse[]> =>
+    request<CurrencyResponse[]>(`${API_PREFIX}/currencies`, options),
 };
 
 // Exchange Rates API
@@ -106,9 +106,10 @@ export const exchangeRatesApi = {
       body: JSON.stringify(data),
     }),
 
-  getHistory: (data: GetHistoricalRatesRangeRequest): Promise<HistoricalRatesPageResponse> =>
+  getHistory: (data: GetHistoricalRatesRangeRequest, signal?: AbortSignal): Promise<HistoricalRatesPageResponse> =>
     request<HistoricalRatesPageResponse>(`${API_PREFIX}/exchangerates/history`, {
       method: 'POST',
       body: JSON.stringify(data),
+      signal,
     }),
 };

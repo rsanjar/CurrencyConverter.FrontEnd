@@ -10,6 +10,7 @@ export interface AuthContextType {
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+AuthContext.displayName = 'AuthContext';
 
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);

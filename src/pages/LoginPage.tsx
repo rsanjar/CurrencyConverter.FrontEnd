@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type ReactEventHandler } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/useAuth';
 import ErrorMessage from '../components/ErrorMessage';
@@ -10,7 +10,7 @@ export default function LoginPage() {
   const { login, isLoading, error } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit: ReactEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     setValidationError(null);
 

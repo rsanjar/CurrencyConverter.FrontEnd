@@ -1,17 +1,16 @@
-import { useState, useEffect, type FormEvent } from 'react';
-import { currenciesApi, exchangeRatesApi } from '../services/api';
-import type { CurrencyResponse, HistoricalRatesPageResponse } from '../types/api';
+import { useEffect, useRef, useState, type ReactEventHandler } from 'react';
+import { exchangeRatesApi } from '../services/api';
+import type { HistoricalRatesPageResponse } from '../types/api';
 import CurrencySelect from '../components/CurrencySelect';
 import MultiCurrencySelect from '../components/MultiCurrencySelect';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
+import { useCurrencies } from '../hooks/useCurrencies';
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50];
 
 export default function HistoricalRangePage() {
-  const [currencies, setCurrencies] = useState<CurrencyResponse[]>([]);
-  const [currenciesLoading, setCurrenciesLoading] = useState(true);
-  const [currenciesError, setCurrenciesError] = useState<string | null>(null);
+  const { currencies, isLoading: currenciesLoading, error: currenciesError } = useCurrencies();
 
   const today = new Date().toISOString().split('T')[0];
   const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -35,41 +34,47 @@ export default function HistoricalRangePage() {
     pageSize: number;
   } | null>(null);
 
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   useEffect(() => {
-    const loadCurrencies = async () => {
-      try {
-        const data = await currenciesApi.getAll();
-        setCurrencies(data);
-      } catch (err) {
-        setCurrenciesError(err instanceof Error ? err.message : 'Failed to load currencies');
-      } finally {
-        setCurrenciesLoading(false);
-      }
+    return () => {
+      abortControllerRef.current?.abort();
     };
-    loadCurrencies();
   }, []);
 
   const fetchPage = async (page: number, query = lastQuery) => {
     if (!query) return;
+
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     setLoading(true);
     setError(null);
     try {
-      const data = await exchangeRatesApi.getHistory({
-        ...query,
-        targetCurrencies: query.targetCurrencies.length > 0 ? query.targetCurrencies : undefined,
-        page,
-        pageSize: query.pageSize,
-      });
+      const data = await exchangeRatesApi.getHistory(
+        {
+          ...query,
+          targetCurrencies: query.targetCurrencies.length > 0 ? query.targetCurrencies : undefined,
+          page,
+          pageSize: query.pageSize,
+        },
+        controller.signal,
+      );
+      if (controller.signal.aborted) return;
       setResult(data);
       setCurrentPage(page);
     } catch (err) {
+      if (controller.signal.aborted) return;
       setError(err instanceof Error ? err.message : 'Failed to fetch historical rates.');
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) {
+        setLoading(false);
+      }
     }
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit: ReactEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     setValidationError(null);
     setError(null);

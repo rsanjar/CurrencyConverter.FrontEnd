@@ -9,7 +9,7 @@ export default function ErrorMessage({ message, onDismiss }: ErrorMessageProps) 
       <span className="error-icon">⚠</span>
       <span className="error-text">{message}</span>
       {onDismiss && (
-        <button className="error-dismiss" onClick={onDismiss} aria-label="Dismiss error">
+        <button type="button" className="error-dismiss" onClick={onDismiss} aria-label="Dismiss error">
           ✕
         </button>
       )}
